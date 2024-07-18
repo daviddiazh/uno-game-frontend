@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { useForm } from '../../hooks/useForm';
 import { envConfig } from '../../config/env';
+import { useContext } from 'react';
+import { AuthContext } from '../../context/AuthContext';
 
 type FieldType = {
   email?: string;
@@ -22,13 +24,15 @@ export const Login = () => {
 
   const navigation = useNavigate();
 
+  const { login } = useContext(AuthContext);
+
   const mutation = useMutation({
     mutationFn: async (values: any) => {
       return await axios.post(`${envConfig.apiUrl}/api/auth/login`, values);
     },
     onSuccess: ({data}: any) => {
       console.log(data)
-      //TODO!
+      login(data);
       return navigation('/');
     },
     onError: () => {
