@@ -9,19 +9,19 @@ import { Spinner } from './components/Spinner';
 
 function App() {
 
-  const { status, user } = useContext(AuthContext);
+  const { status } = useContext(AuthContext);
 
-  console.log({ user })
+  const isLogged = status === 'authenticated';
 
   if (status === 'checking') return <Spinner />
 
   return (
     <div className='general-container'>
       <Routes>
-        <Route path='/' element={ status === 'authenticated' ? <Options /> : <Login /> } />
-        <Route path="/enrollment" element={ status === 'authenticated' ? <Options /> : <Enrollment /> } />
+        <Route path='/' element={ isLogged ? <Options /> : <Login /> } />
+        <Route path="/enrollment" element={ isLogged ? <Options /> : <Enrollment /> } />
 
-        <Route path='/*' element={ status === 'authenticated' ? <Options /> : <Login /> } />
+        <Route path='/*' element={ isLogged ? <Options /> : <Login /> } />
       </Routes>
     </div>
   )

@@ -31,7 +31,6 @@ export const Login = () => {
       return await axios.post(`${envConfig.apiUrl}/api/auth/login`, values);
     },
     onSuccess: ({data}: any) => {
-      console.log(data)
       login(data);
       return navigation('/');
     },
@@ -103,7 +102,7 @@ export const Login = () => {
           <p 
             onClick={() => navigation('/enrollment')}
             className={styles['login-btn']}
-          >No tienes cuenta?, ¡registrate acá!</p>
+          >No tienes cuenta? ¡registrate acá!</p>
         </div>
       </div>
     </div>

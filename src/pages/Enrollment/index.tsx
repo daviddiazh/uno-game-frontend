@@ -135,7 +135,7 @@ export const Enrollment = () => {
           <p 
             onClick={() => navigation('/')}
             className={styles['login-btn']}
-          >¿Ya tienes cuenta?, ¡inicia sesión!</p>
+          >¿Ya tienes cuenta? ¡inicia sesión!</p>
         </div>
       </div>
     </div>

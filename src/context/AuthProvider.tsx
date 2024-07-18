@@ -1,9 +1,11 @@
 import React, { useEffect, useReducer } from "react";
 import axios from "axios";
+import { Modal } from "antd";
 import { AuthContext } from "./AuthContext";
 import { IUser } from "../interfaces/user";
 import { envConfig } from "../config/env";
 import { authReducer } from "./authReducer";
+import globalStyles from '../global/styles.module.css';
 
 type StatusInterface = | 'checking' | 'authenticated' | 'not-authenticated';
 
@@ -42,6 +44,16 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
             const { data } = await axios.get(`${envConfig.apiUrl}/api/auth/validate-token`, config);
 
             if (data?.code === 401) {
+                Modal.error({
+                    title: 'Parece que tu sesión acabó',
+                    content: 'Para continuar disfrutando de UNO debes volver a iniciar sesión',
+                    centered: true,
+                    closable: true,
+                    okText: 'Aceptar',
+                    okButtonProps: {
+                      className: globalStyles.btn
+                    },
+                  });
                 return logout();
             }
             dispatch({ type: 'Auth - Login', payload: { user: {...data}, token } });
