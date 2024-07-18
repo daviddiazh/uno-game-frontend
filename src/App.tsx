@@ -4,7 +4,7 @@ import { Options } from './pages/Private/Options';
 import { Login } from './pages/Login';
 import { Enrollment } from './pages/Enrollment';
 import { useContext } from 'react';
-import { AuthContext } from './context/AuthContext';
+import { AuthContext } from './context/auth/AuthContext';
 import { Spinner } from './components/Spinner';
 
 function App() {

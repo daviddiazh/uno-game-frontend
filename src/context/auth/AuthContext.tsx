@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { IUser } from '../interfaces/user';
+import { IUser } from '../../interfaces/user';
 
 type StatusInterface = | 'checking' | 'authenticated' | 'not-authenticated';
 

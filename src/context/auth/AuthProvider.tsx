@@ -2,10 +2,10 @@ import React, { useEffect, useReducer } from "react";
 import axios from "axios";
 import { Modal } from "antd";
 import { AuthContext } from "./AuthContext";
-import { IUser } from "../interfaces/user";
-import { envConfig } from "../config/env";
+import { IUser } from "../../interfaces/user";
+import { envConfig } from "../../config/env";
 import { authReducer } from "./authReducer";
-import globalStyles from '../global/styles.module.css';
+import globalStyles from '../../global/styles.module.css';
 
 type StatusInterface = | 'checking' | 'authenticated' | 'not-authenticated';
 
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
     const checkToken = async () => {
         const token = localStorage.getItem('token') ?? '';
 
-        if( !token ) return;
+        if( !token ) return logout();
 
         const config = {
             headers: {

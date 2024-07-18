@@ -7,7 +7,7 @@ import styles from './styles.module.css';
 import { useForm } from '../../hooks/useForm';
 import { envConfig } from '../../config/env';
 import { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../../context/auth/AuthContext';
 
 type FieldType = {
   email?: string;
