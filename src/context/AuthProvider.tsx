@@ -27,10 +27,6 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
         checkToken();
     }, []);
 
-    useEffect(() => {
-        
-    }, []);
-
     const checkToken = async () => {
         const token = localStorage.getItem('token') ?? '';
 

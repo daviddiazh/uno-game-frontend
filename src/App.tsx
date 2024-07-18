@@ -5,12 +5,15 @@ import { Login } from './pages/Login';
 import { Enrollment } from './pages/Enrollment';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import { Spinner } from './components/Spinner';
 
 function App() {
 
   const { status, user } = useContext(AuthContext);
 
   console.log({ user })
+
+  if (status === 'checking') return <Spinner />
 
   return (
     <div className='general-container'>
