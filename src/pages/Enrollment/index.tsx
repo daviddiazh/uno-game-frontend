@@ -2,12 +2,12 @@ import { useState } from 'react';
 import axios from 'axios';
 import type { FormProps } from 'antd';
 import { Button, Form, Input, Modal } from 'antd';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css';
 import { avatars } from '../../utils/avatars';
 import { useForm } from '../../hooks/useForm';
 import { envConfig } from '../../config/env';
-import { useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
 
 type FieldType = {
   email?: string;
@@ -57,7 +57,7 @@ export const Enrollment = () => {
     }
   })
 
-  const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
     if ( values.name!.length < 2 || values.email!.length < 5 || values.password!.length < 5 || avatar.length < 10 ) return;
 
     mutation.mutate(values)
@@ -66,7 +66,7 @@ export const Enrollment = () => {
   return (
     <div className={styles['container-page']}>
       <div className={styles.content}>
-        <h1>Registro!</h1>
+        <h1>Registrate!</h1>
         <div style={{width: '100%'}}>
           <Form
             name="basic"
@@ -125,12 +125,17 @@ export const Enrollment = () => {
               }
             </div>
 
-            <Form.Item style={{ display: 'flex', justifyContent: 'center' }}>
+            <Form.Item style={{ display: 'flex', justifyContent: 'center',}}>
               <Button type="primary" htmlType="submit" className={styles.btn}>
                 Crear cuenta
               </Button>
             </Form.Item>
           </Form>
+
+          <p 
+            onClick={() => navigation('/')}
+            className={styles['login-btn']}
+          >¿Ya tienes cuenta?, ¡inicia sesión!</p>
         </div>
       </div>
     </div>
