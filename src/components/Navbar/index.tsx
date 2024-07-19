@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/auth/AuthContext';
 import logo from '../../assets/logo-uno.png';
 import logoutIcon from '../../assets/icons/log-out.svg';
 import styles from './styles.module.css';
+import { Tooltip } from 'antd';
 
 export const Navbar = () => {
 
@@ -20,7 +21,9 @@ export const Navbar = () => {
                 <p>{user?.name?.split(' ')[0]},</p>
                 <div className={styles['second-container']} style={{ gap: 25 }}>
                     <img src={user?.avatar} alt={`Avatar de ${user?.name}`} className={styles.avatar} />
-                    <img src={logoutIcon} alt='Logout Icon' className={styles.icon} onClick={logout} />
+                    <Tooltip placement="bottomLeft" title='Cerrar sesión'>
+                        <img src={logoutIcon} alt='Logout Icon' className={styles.icon} onClick={logout} />
+                    </Tooltip>
                 </div>
             </div>
         </div>
