@@ -9,6 +9,7 @@ import { envConfig } from "../../../config/env";
 import { useForm } from "../../../hooks/useForm";
 import { IUser } from "../../../interfaces/user";
 import { AuthContext } from "../../../context/auth/AuthContext";
+import { User } from "../../../components/User";
 
 type MenuItem = GetProp<MenuProps, 'items'>[number];
 
@@ -142,13 +143,7 @@ export const Options = () => {
                   {
                     findUsers?.data?.filter((i: any) => !(i._id === user?._id))?.map((userMapped: IUser['user']) => (
                       <div key={userMapped?._id} className={styles['user-container']}>
-                        <div className={styles['user']}>
-                          <div className={styles['badge-container']}>
-                            <img src={userMapped?.avatar} alt={`Avatar de ${userMapped?.name}`} className={styles.avatar} />
-                            <div className={styles[user?.online ? 'badge-online' : 'badge-off']} />
-                          </div>
-                          <p>{userMapped.name}</p>
-                        </div>
+                        <User {...userMapped} />
                         <Button type="primary" onClick={() => sendRequest.mutate({userIdFrom: user?._id, userIdTo: userMapped?._id})}>
                           Envíar Solicitud de amistad
                         </Button>
@@ -166,13 +161,7 @@ export const Options = () => {
                   {
                     requestSended?.data?.map((userMapped: any) => (
                       <div key={userMapped?.userIdTo?._id} className={styles['user-container']}>
-                        <div className={styles['user']}>
-                          <div className={styles['badge-container']}>
-                            <img src={userMapped?.userIdTo?.avatar} alt={`Avatar de ${userMapped?.userIdTo?.name}`} className={styles.avatar} />
-                            <div className={styles[user?.online ? 'badge-online' : 'badge-off']} />
-                          </div>
-                          <p>{userMapped?.userIdTo?.name}</p>
-                        </div>
+                        <User {...userMapped?.['userIdTo']} />
                       </div>
                     ))
                   }
@@ -186,13 +175,7 @@ export const Options = () => {
                 {
                   requestReceived?.data?.map((userMapped: any) => (
                     <div key={userMapped?.userIdFrom?._id} className={styles['user-container']}>
-                      <div className={styles['user']}>
-                        <div className={styles['badge-container']}>
-                          <img src={userMapped?.userIdFrom?.avatar} alt={`Avatar de ${userMapped?.userIdFrom?.name}`} className={styles.avatar} />
-                          <div className={styles[user?.online ? 'badge-online' : 'badge-off']} />
-                        </div>
-                        <p>{userMapped?.userIdFrom?.name}</p>
-                      </div>
+                      <User {...userMapped?.['userIdFrom']} />
                       <Button type="primary" onClick={() => console.log('aceptar solicitud')}>
                         Aceptar solicitud de amistad
                       </Button>
