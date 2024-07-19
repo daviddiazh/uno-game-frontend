@@ -1,0 +1,44 @@
+.container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+}
+
+.logo {
+    width: 60px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+.second-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 30px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+.icon {
+    width: 15px;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+/* @media (max-width: 900px) {
+    .container {
+        margin: 20px 15px;
+        padding: 0;
+    }
+} */

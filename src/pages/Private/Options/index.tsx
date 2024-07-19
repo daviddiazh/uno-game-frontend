@@ -1,13 +1,11 @@
-import { useContext } from "react"
-import { AuthContext } from "../../../context/auth/AuthContext"
+import { Navbar } from "../../../components/Navbar";
 
 export const Options = () => {
-  const { logout } = useContext(AuthContext);
 
   return (
     <div>
+      <Navbar />
       <p>Options</p>
-      <button onClick={logout}>logout</button>
     </div>
   )
 }
