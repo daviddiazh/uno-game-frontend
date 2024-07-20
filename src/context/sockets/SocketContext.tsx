@@ -2,9 +2,14 @@ import { createContext, useContext, useEffect } from "react";
 import { envConfig } from "../../config/env";
 import { useSocket } from "../../hooks/useSocket";
 import { AuthContext } from "../auth/AuthContext";
+import { Socket } from "socket.io-client";
 
+interface SocketContextProps {
+    socket: Socket;
+    online: boolean;
+}
 
-export const SocketContext = createContext({});
+export const SocketContext = createContext({} as SocketContextProps);
 
 export const SocketProvider: React.FC<any> = ({ children }) => {
 

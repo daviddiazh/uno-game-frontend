@@ -34,7 +34,7 @@ export const useSocket = ( apiUrl = '' ) => {
 
     useEffect(() => {
         socket?.on('disconnect', () => setOnline( false ))
-    }, [socket])
+    }, [socket]);
 
     return {
         socket,

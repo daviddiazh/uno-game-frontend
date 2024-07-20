@@ -10,11 +10,13 @@ import { useForm } from "../../../hooks/useForm";
 import { IUser } from "../../../interfaces/user";
 import { AuthContext } from "../../../context/auth/AuthContext";
 import { User } from "../../../components/User";
+import { SocketContext } from "../../../context/sockets/SocketContext";
 
 type MenuItem = GetProp<MenuProps, 'items'>[number];
 
 export const Options = () => {
   const { user } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
 
   const [ option, setOption ] = useState<string>('0');
 
@@ -52,7 +54,7 @@ export const Options = () => {
   const item: any = menuItems.find(item => item?.key === option);
 
   const { data: findUsers, isLoading: isLoadingFindUsers, refetch: refetchFindUsers } = useQuery<any>({ queryKey: ['users'], queryFn: async () => {
-    return await axios.post(`${envConfig.apiUrl}/api/auth/find-users`, { name })
+    return await axios.post(`${envConfig.apiUrl}/api/auth/find-users`, { userIdFrom: user?._id, nameUserTo: name })
   } })
 
   const sendRequest = useMutation({
@@ -96,6 +98,26 @@ export const Options = () => {
     return await axios.get(`${envConfig.apiUrl}/api/friends-request/received/${user?._id}`,)
   } })
 
+  const [ myFriends, setMyFriends ] = useState([]);
+
+  socket?.on('get-friends-list', (users) => {
+    const filtered = users?.filter((u: any) => !(u._id === user?._id));
+    setMyFriends(filtered)
+  });
+
+  const handleFriendsRequest = (userIdFrom: string | undefined, userIdTo: string | undefined, action: string) => {
+    if ( action === 'none' ) return;
+
+    if ( action === 'acept' ) {
+      // aceptRequest.mutate({userIdFrom: user?._id, userIdTo})
+      console.log('aceptar')
+    }
+
+    if ( action === 'send' ) {
+      sendRequest.mutate({userIdFrom, userIdTo})
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Navbar /> 
@@ -115,7 +137,20 @@ export const Options = () => {
           {
             option === '0' && (
               <div>
-                
+                {
+                  myFriends?.length === 0 
+                  ? (<div>
+                    <p>Aún no tienes amigos</p>
+                  </div>) 
+                  : myFriends?.map((userMapped: IUser['user']) => (
+                    <div key={userMapped?._id} className={styles['user-container']}>
+                      <User {...userMapped} />
+                      <Button type="primary" onClick={() => console.log('play')}>
+                        Invitar a jugar
+                      </Button>
+                    </div>
+                  ))
+                }
               </div>
             )
           }
@@ -141,11 +176,30 @@ export const Options = () => {
                 
                 <div style={{ marginTop: 40 }}>
                   {
-                    findUsers?.data?.filter((i: any) => !(i._id === user?._id))?.map((userMapped: IUser['user']) => (
+                    findUsers?.data?.filter((i: any) => !(i._id === user?._id))?.map((userMapped: any) => (
                       <div key={userMapped?._id} className={styles['user-container']}>
                         <User {...userMapped} />
-                        <Button type="primary" onClick={() => sendRequest.mutate({userIdFrom: user?._id, userIdTo: userMapped?._id})}>
-                          Envíar Solicitud de amistad
+                        <Button 
+                          type="primary" 
+                          onClick={() => {
+                            let action = '';
+                            if (userMapped?.sended) {
+                              action = 'none';
+                            } else if ( userMapped?.received ) {
+                              action = 'acept'
+                            } else {
+                              action = 'send'
+                            }
+                            handleFriendsRequest(user?._id, userMapped?._id, action)
+                          }} 
+                          disabled={userMapped?.sended}
+                        >
+                          { 
+                          userMapped?.sended 
+                            ? 'Solicitud de amistad envíada' 
+                            : userMapped?.received ? 'Aceptar solicitud de amistad' 
+                            : 'Envíar Solicitud de amistad' 
+                          }
                         </Button>
                       </div>
                     ))
@@ -159,7 +213,11 @@ export const Options = () => {
             option === '2' && (
               <div style={{ marginTop: 40 }}>
                   {
-                    requestSended?.data?.map((userMapped: any) => (
+                    requestSended?.data?.length === 0 
+                    ? (<div>
+                      <p>No hay solicitudes de amistad envíadas</p>
+                    </div>) 
+                    : requestSended?.data?.map((userMapped: any) => (
                       <div key={userMapped?.userIdTo?._id} className={styles['user-container']}>
                         <User {...userMapped?.['userIdTo']} />
                       </div>
@@ -173,10 +231,14 @@ export const Options = () => {
             option === '3' && (
               <div>
                 {
-                  requestReceived?.data?.map((userMapped: any) => (
+                  requestReceived?.data?.length === 0 
+                  ? (<div>
+                    <p>No hay solicitudes por aceptar.</p>
+                  </div>) 
+                  : requestReceived?.data?.map((userMapped: any) => (
                     <div key={userMapped?.userIdFrom?._id} className={styles['user-container']}>
                       <User {...userMapped?.['userIdFrom']} />
-                      <Button type="primary" onClick={() => console.log('aceptar solicitud')}>
+                      <Button type="primary" onClick={() => handleFriendsRequest(userMapped?.['userIdFrom']?._id, user?._id, 'acept')}>
                         Aceptar solicitud de amistad
                       </Button>
                     </div>
