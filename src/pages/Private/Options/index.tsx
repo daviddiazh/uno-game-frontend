@@ -64,7 +64,7 @@ export const Options = () => {
     onSuccess: () => {
       Modal.success({
         title: 'Solicitud de amistad envíada',
-        content: 'Ahora puedes jugar con ese usuario.',
+        content: 'Hemos envíado la solicitud de amistad a ese usuario.',
         centered: true,
         closable: true,
         okText: 'Aceptar',
@@ -98,10 +98,44 @@ export const Options = () => {
     return await axios.get(`${envConfig.apiUrl}/api/friends-request/received/${user?._id}`,)
   } })
 
-  const [ myFriends, setMyFriends ] = useState([]);
+  const aceptRequest = useMutation({
+    mutationFn: async (values: any) => {
+      return await axios.post(`${envConfig.apiUrl}/api/friends/acept`, values);
+    },
+    onSuccess: () => {
+      Modal.success({
+        title: 'Solicitud de amistad aceptada',
+        content: 'Ahora puedes jugar con ese usuario.',
+        centered: true,
+        closable: true,
+        okText: 'Aceptar',
+        okButtonProps: {
+          className: styles.btn
+        },
+      });
+      refetchFindUsers();
+      refetchSended();
+      refetchReceived();
+    },
+    onError: () => {
+      return Modal.error({
+        title: '¡Ups! Error al aceptar la solicitud',
+        content: 'Parece que ocurrio un error al aceptar la solicitud de amistad a ese usuario.',
+        centered: true,
+        closable: true,
+        okText: 'Aceptar',
+        okButtonProps: {
+          className: styles.btn
+        },
+      });
+    }
+  })
 
+  const [ myFriends, setMyFriends ] = useState([]);
+  
   socket?.on('get-friends-list', (users) => {
-    const filtered = users?.filter((u: any) => !(u._id === user?._id));
+    const filtered = users?.flatMap(u => u)?.filter((u: any) => u._id != user?._id);
+    // // console.log(filtered)
     setMyFriends(filtered)
   });
 
@@ -109,11 +143,8 @@ export const Options = () => {
     if ( action === 'none' ) return;
 
     if ( action === 'acept' ) {
-      // aceptRequest.mutate({userIdFrom: user?._id, userIdTo})
-      console.log('aceptar')
-    }
-
-    if ( action === 'send' ) {
+      aceptRequest.mutate({userIdFrom, userIdTo})
+    } else if ( action === 'send' ) {
       sendRequest.mutate({userIdFrom, userIdTo})
     }
   }
@@ -179,28 +210,33 @@ export const Options = () => {
                     findUsers?.data?.filter((i: any) => !(i._id === user?._id))?.map((userMapped: any) => (
                       <div key={userMapped?._id} className={styles['user-container']}>
                         <User {...userMapped} />
-                        <Button 
-                          type="primary" 
-                          onClick={() => {
-                            let action = '';
-                            if (userMapped?.sended) {
-                              action = 'none';
-                            } else if ( userMapped?.received ) {
-                              action = 'acept'
-                            } else {
-                              action = 'send'
-                            }
-                            handleFriendsRequest(user?._id, userMapped?._id, action)
-                          }} 
-                          disabled={userMapped?.sended}
-                        >
-                          { 
-                          userMapped?.sended 
-                            ? 'Solicitud de amistad envíada' 
-                            : userMapped?.received ? 'Aceptar solicitud de amistad' 
-                            : 'Envíar Solicitud de amistad' 
-                          }
-                        </Button>
+                        {
+                          !(userMapped?.isFriend) && (
+                            <Button 
+                              type="primary" 
+                              onClick={() => {
+                                let action = '';
+                                if (userMapped?.sended) {
+                                  action = 'none';
+                                } else if ( userMapped?.received ) {
+                                  action = 'acept'
+                                  handleFriendsRequest(userMapped?._id, user?._id, action)
+                                } else {
+                                  action = 'send'
+                                  handleFriendsRequest(user?._id, userMapped?._id, action)
+                                }
+                              }} 
+                              disabled={userMapped?.sended}
+                            >
+                              {
+                              userMapped?.sended 
+                                ? 'Solicitud de amistad envíada' 
+                                : userMapped?.received ? 'Aceptar solicitud de amistad' 
+                                : 'Envíar Solicitud de amistad' 
+                              }
+                            </Button>
+                          )
+                        }
                       </div>
                     ))
                   }
