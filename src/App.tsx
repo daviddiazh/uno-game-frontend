@@ -6,6 +6,8 @@ import { Enrollment } from './pages/Enrollment';
 import { useContext } from 'react';
 import { AuthContext } from './context/auth/AuthContext';
 import { Spinner } from './components/Spinner';
+import { Game } from './pages/Private/Game';
+import { ProtectedRoute } from './utils/ProtectedRoute';
 
 function App() {
 
@@ -20,6 +22,15 @@ function App() {
       <Routes>
         <Route path='/' element={ isLogged ? <Options /> : <Login /> } />
         <Route path="/enrollment" element={ isLogged ? <Options /> : <Enrollment /> } />
+
+        <Route 
+          path="/game" 
+          element={
+            <ProtectedRoute>
+              <Game />
+            </ProtectedRoute>
+          } 
+        />
 
         <Route path='/*' element={ isLogged ? <Options /> : <Login /> } />
       </Routes>

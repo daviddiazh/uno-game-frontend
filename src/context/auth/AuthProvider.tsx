@@ -26,8 +26,8 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
     const [ state, dispatch ] = useReducer(authReducer, AUTH_INITIAL_STATE);
 
     useEffect(() => {
-        checkToken();
-    }, []);
+        if (state.status !== 'not-authenticated') checkToken();
+    }, [ state.status ]);
 
     const checkToken = async () => {
         const token = localStorage.getItem('token') ?? '';
@@ -42,8 +42,8 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
 
         try {
             const { data } = await axios.get(`${envConfig.apiUrl}/api/auth/validate-token`, config);
-
             if (data?.code === 401) {
+
                 Modal.error({
                     title: 'Parece que tu sesión acabó',
                     content: 'Para continuar disfrutando de UNO debes volver a iniciar sesión',
@@ -51,9 +51,9 @@ export const AuthProvider: React.FC<any> = ({ children }) => {
                     closable: true,
                     okText: 'Aceptar',
                     okButtonProps: {
-                      className: globalStyles.btn
+                      className: globalStyles.btn,
                     },
-                  });
+                });
                 return logout();
             }
             dispatch({ type: 'Auth - Login', payload: { user: {...data}, token } });

@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { Button, GetProp, Input, Menu, MenuProps, Space, Spin } from "antd";
+import { Button, GetProp, Input, Menu, MenuProps, Modal, Space, Spin } from "antd";
 import { Navbar } from "../../../components/Navbar";
 import styles from './styles.module.css';
 import { TeamOutlined, LoadingOutlined } from '@ant-design/icons';
@@ -8,6 +8,7 @@ import { IUser } from "../../../interfaces/user";
 import { AuthContext } from "../../../context/auth/AuthContext";
 import { User } from "../../../components/User";
 import { SocketContext } from "../../../context/sockets/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 type MenuItem = GetProp<MenuProps, 'items'>[number];
 
@@ -34,6 +35,8 @@ export const Options = () => {
 
   const [ users, setUsers ] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
+
+  const navigate = useNavigate();
   
   socket?.on('get-users-list', (users) => {
     const filtered = users?.filter((u: any) => u._id != user?._id);
@@ -45,6 +48,40 @@ export const Options = () => {
     setIsLoading(true);
     socket?.emit('get-users-list', name);
     setIsLoading(false);
+  }
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [invitingUser, setInvitingUser] = useState<any>(null);
+  const [userInvited, setUserInvited] = useState<any>(null);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+    socket?.emit('start-game', { userIdInvited: userInvited, userIdInviting: invitingUser?._id });
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  socket?.on('invitation-to-tame', (payload) => {
+    showModal();
+    console.log({ payload })
+    setInvitingUser(payload?.userInviting);
+    setUserInvited(payload?.userInvited);
+  });
+
+  socket?.on('start-game', (payload) => {
+    // payload?.userInviting
+    // payload?.userInvited
+    navigate('/game');
+  });
+
+  const sendInvitation = (userIdTo: string) => {
+    socket?.emit('invitation-to-tame', { userIdFrom: user?._id, userIdTo });
   }
 
   return (
@@ -87,7 +124,11 @@ export const Options = () => {
                     users?.map((userMapped: IUser['user']) => (
                       <div key={userMapped?._id} className={styles['user-container']}>
                         <User {...userMapped} />
-                        <Button type="primary" onClick={() => console.log('play')}>
+                        <Button 
+                          type="primary" 
+                          onClick={() => sendInvitation(userMapped?._id)}
+                          disabled={ !userMapped?.online }
+                        >
                           Invitar a jugar
                         </Button>
                       </div>
@@ -97,6 +138,19 @@ export const Options = () => {
               </div>
             )
           }
+
+          <Modal 
+            title="Nueva invitación para jugar" 
+            open={isModalOpen} 
+            onOk={handleOk} 
+            onCancel={handleCancel}
+            centered
+            closable
+            okText='Aceptar Invitación'
+            cancelText='Rechazar'
+          >
+            <User {...invitingUser} />
+          </Modal>
         </div>
       </div>
     </div>
