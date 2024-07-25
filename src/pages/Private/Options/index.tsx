@@ -9,6 +9,7 @@ import { AuthContext } from "../../../context/auth/AuthContext";
 import { User } from "../../../components/User";
 import { SocketContext } from "../../../context/sockets/SocketContext";
 import { useNavigate } from "react-router-dom";
+import { useGameStore } from "../../../store/game";
 
 type MenuItem = GetProp<MenuProps, 'items'>[number];
 
@@ -34,6 +35,7 @@ export const Options = () => {
   const item: any = menuItems.find(item => item?.key === option);
 
   const [ users, setUsers ] = useState([]);
+  const [ invitingUser, setInvitingUser ] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
 
   const navigate = useNavigate();
@@ -51,8 +53,8 @@ export const Options = () => {
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [invitingUser, setInvitingUser] = useState<any>(null);
-  const [userInvited, setUserInvited] = useState<any>(null);
+  
+  const { userInvited, userInviting, setUsersToGame } = useGameStore();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -60,28 +62,32 @@ export const Options = () => {
 
   const handleOk = () => {
     setIsModalOpen(false);
-    socket?.emit('start-game', { userIdInvited: userInvited, userIdInviting: invitingUser?._id });
+    socket?.emit('start-game', { userIdInvited: userInvited, userIdInviting: userInviting });
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
-  socket?.on('invitation-to-tame', (payload) => {
+  socket?.on('invitation-to-game', (payload) => {
     showModal();
-    console.log({ payload })
     setInvitingUser(payload?.userInviting);
-    setUserInvited(payload?.userInvited);
+    setUsersToGame({
+      userInviting: payload?.userInviting?._id,
+      userInvited: payload?.userInvited,
+    });
   });
 
   socket?.on('start-game', (payload) => {
-    // payload?.userInviting
-    // payload?.userInvited
+    setUsersToGame({
+      userInviting: payload?.userInviting,
+      userInvited: payload?.userInvited,
+    });
     navigate('/game');
   });
 
   const sendInvitation = (userIdTo: string) => {
-    socket?.emit('invitation-to-tame', { userIdFrom: user?._id, userIdTo });
+    socket?.emit('invitation-to-game', { userIdFrom: user?._id, userIdTo });
   }
 
   return (
